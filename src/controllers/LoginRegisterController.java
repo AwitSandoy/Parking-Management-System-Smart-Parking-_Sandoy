@@ -27,9 +27,8 @@ public class LoginRegisterController {
     @FXML private Button primaryActionButton;
     @FXML private Button toggleModeButton;
 
-    // Depends on the IUserDAO abstraction, not the concrete UserDAO class
-    // (Dependency Inversion Principle) - only the exact instantiation
-    // point on the right needs to know which implementation is used.
+/*      Depends on the IUserDAO abstraction, not the concrete UserDAO class (Dependency Inversion Principle)
+     - only the exact instantiation point on the right needs to know which implementation is used.          */
     private final IUserDAO userDAO = new UserDAO();
     private boolean registerMode = false;
 
@@ -81,9 +80,8 @@ public class LoginRegisterController {
                 return;
             }
 
-            // Create the serialized session file (session.dat) so the
-            // login state survives across screens/navigation and can be
-            // verified independently of the in-memory User object.
+            /*  Create the serialized session file (session.dat) so the login state survives across
+                screens / navigation and can be verified independently of the in-memory User object.    */
             SessionManager.createSession(user);
 
             if (user.isAdmin()) {
