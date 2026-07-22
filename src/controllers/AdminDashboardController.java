@@ -34,7 +34,7 @@ public class AdminDashboardController {
 
     @FXML private Label welcomeLabel;
 
-    // ---- Slots tab ----
+//  SLOTS TAB :
     @FXML private TableView<ParkingSlot> slotsTable;
     @FXML private TableColumn<ParkingSlot, Integer> colSlotId;
     @FXML private TableColumn<ParkingSlot, String> colSlotNumber;
@@ -44,7 +44,7 @@ public class AdminDashboardController {
     @FXML private TextField slotRateField;
     @FXML private Label slotsMessageLabel;
 
-    // ---- Users tab ----
+// USERS TAB :
     @FXML private TableView<User> usersTable;
     @FXML private TableColumn<User, Integer> colUserId;
     @FXML private TableColumn<User, String> colUsername;
@@ -54,7 +54,7 @@ public class AdminDashboardController {
     @FXML private ComboBox<String> newUserRoleCombo;
     @FXML private Label usersMessageLabel;
 
-    // ---- Reservations tab ----
+// RESERVATIONS TAB :
     @FXML private TableView<Reservation> reservationsTable;
     @FXML private TableColumn<Reservation, Integer> colResId;
     @FXML private TableColumn<Reservation, String> colResUsername;
@@ -63,8 +63,8 @@ public class AdminDashboardController {
     @FXML private TableColumn<Reservation, String> colResExitTime;
     @FXML private TableColumn<Reservation, Double> colResAmount;
 
-    // Depends on the I*DAO abstractions, not the concrete classes
-    // (Dependency Inversion Principle).
+    /*      Depends on the I_DAO (Data Access Object pattern) abstractions,
+    not the concrete classes (Dependency Inversion Principle).          */
     private final IParkingSlotDAO slotDAO = new ParkingSlotDAO();
     private final IUserDAO userDAO = new UserDAO();
     private final IReservationDAO reservationDAO = new ReservationDAO();
@@ -103,8 +103,8 @@ public class AdminDashboardController {
     public void setCurrentUser(User user) {
         this.currentUser = user;
 
-        // Validate against the serialized session file rather than trusting
-        // the in-memory User object alone.
+        /*      Validate against the serialized session file rather than trusting the
+        in-memory User object alone.                                                */
         Session session = SessionManager.getActiveSession();
         if (session == null || session.getUserId() != user.getId()) {
             showError("No valid session found. Please log in again.");
@@ -118,8 +118,7 @@ public class AdminDashboardController {
         refreshReservations();
     }
 
-    // ===================== SLOTS =====================
-
+//  SLOTS :
     private void refreshSlots() {
         try {
             ObservableList<ParkingSlot> slots = FXCollections.observableArrayList(slotDAO.getAllSlots());
@@ -217,8 +216,7 @@ public class AdminDashboardController {
         }
     }
 
-    // ===================== USERS =====================
-
+//  USERS :
     private void refreshUsers() {
         try {
             ObservableList<User> users = FXCollections.observableArrayList(userDAO.getAllUsers());
@@ -303,8 +301,7 @@ public class AdminDashboardController {
         }
     }
 
-    // ===================== RESERVATIONS =====================
-
+//  RESERVATIONS :
     private void refreshReservations() {
         try {
             ObservableList<Reservation> reservations =
@@ -320,8 +317,7 @@ public class AdminDashboardController {
         refreshReservations();
     }
 
-    // ===================== SHARED =====================
-
+// SHARED :
     @FXML
     private void handleLogout(ActionEvent event) {
         // Delete the serialized session file on logout.
