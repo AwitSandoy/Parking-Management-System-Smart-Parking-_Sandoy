@@ -41,8 +41,8 @@ public class CustomerDashboardController {
     @FXML private TableColumn<Reservation, String> colResEntry;
     @FXML private TableColumn<Reservation, Double> colResAmount;
 
-    // Depends on the IParkingSlotDAO / IReservationDAO abstractions, not
-    // the concrete classes (Dependency Inversion Principle).
+/*  Depends on the IParkingSlotDAO / IReservationDAO abstractions,
+    not the concrete classes (Dependency Inversion Principle).   */
     private final IParkingSlotDAO slotDAO = new ParkingSlotDAO();
     private final IReservationDAO reservationDAO = new ReservationDAO();
     private User currentUser;
@@ -61,9 +61,8 @@ public class CustomerDashboardController {
     public void setCurrentUser(User user) {
         this.currentUser = user;
 
-        // Validate against the serialized session file rather than trusting
-        // the in-memory User object alone - this is the "use the file to
-        // maintain the session while navigating" requirement in practice.
+/*  Validate against the serialized session file rather than trusting the in-memory User object alone
+    - this is the "use the file to maintain the session while navigating" requirement in practice.  */
         Session session = SessionManager.getActiveSession();
         if (session == null || session.getUserId() != user.getId()) {
             showError("No valid session found. Please log in again.");
@@ -153,8 +152,8 @@ public class CustomerDashboardController {
 
     @FXML
     private void handleLogout(ActionEvent event) {
-        // Delete the serialized session file - this is the required
-        // "session file must be automatically deleted" behavior on logout.
+        /*      Delete the serialized session file - this is the required
+            "session file must be automatically deleted" behavior on logout.    */
         SessionManager.destroySession();
         returnToLogin();
     }
