@@ -39,7 +39,7 @@ public class ParkingSlotDAO implements IParkingSlotDAO {
         return list;
     }
 
-    /** ADMIN: create a new slot. */
+    //    ADMIN: create a new slot.
     public boolean addSlot(String slotNumber, double ratePerHour) throws SQLException {
         String sql = "INSERT INTO parking_slots (slot_number, status, rate_per_hour) VALUES (?, 'Available', ?)";
         try (Connection conn = DatabaseConnection.getConnection();
@@ -50,7 +50,7 @@ public class ParkingSlotDAO implements IParkingSlotDAO {
         }
     }
 
-    /** ADMIN: update slot number / rate. */
+    // ADMIN: update slot number / rate.
     public boolean updateSlot(int slotId, String slotNumber, double ratePerHour) throws SQLException {
         String sql = "UPDATE parking_slots SET slot_number = ?, rate_per_hour = ? WHERE slot_id = ?";
         try (Connection conn = DatabaseConnection.getConnection();
@@ -62,7 +62,7 @@ public class ParkingSlotDAO implements IParkingSlotDAO {
         }
     }
 
-    /** Used both by Admin (manual override) and by booking/release logic. */
+    //    Used both by Admin (manual override) and by booking/release logic.
     public boolean updateStatus(int slotId, String status) throws SQLException {
         String sql = "UPDATE parking_slots SET status = ? WHERE slot_id = ?";
         try (Connection conn = DatabaseConnection.getConnection();
@@ -73,7 +73,7 @@ public class ParkingSlotDAO implements IParkingSlotDAO {
         }
     }
 
-    /** ADMIN: delete a slot. */
+    //    ADMIN: delete a slot.
     public boolean deleteSlot(int slotId) throws SQLException {
         String sql = "DELETE FROM parking_slots WHERE slot_id = ?";
         try (Connection conn = DatabaseConnection.getConnection();
