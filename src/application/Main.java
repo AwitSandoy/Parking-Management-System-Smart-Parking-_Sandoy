@@ -8,7 +8,6 @@ import javafx.stage.Stage;
 import utils.SessionManager;
 //
 public class Main extends Application {
-//    testing if update works from another computer. -Awit Sandoy
 
     @Override
     public void start(Stage primaryStage) throws Exception {
