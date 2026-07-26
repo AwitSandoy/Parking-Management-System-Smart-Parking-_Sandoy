@@ -4,8 +4,8 @@ public class User {
 
     private int id;
     private String username;
-    private String password; // hashed
-    private String role;     // "Admin" or "Customer"
+    private String password; //    hashed.
+    private String role;     //    "Admin" or "Customer".
 
     public User() {
     }
