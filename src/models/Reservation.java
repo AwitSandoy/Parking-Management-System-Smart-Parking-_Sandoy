@@ -8,9 +8,9 @@ public class Reservation {
 
     private final SimpleIntegerProperty reservationId;
     private final SimpleIntegerProperty userId;
-    private final SimpleStringProperty username;   // joined field, for display only
+    private final SimpleStringProperty username;   // joined field, for display only.
     private final SimpleIntegerProperty slotId;
-    private final SimpleStringProperty slotNumber; // joined field, for display only
+    private final SimpleStringProperty slotNumber; // joined field, for display only.
     private final SimpleStringProperty entryTime;
     private final SimpleStringProperty exitTime;
     private final SimpleDoubleProperty totalAmount;
