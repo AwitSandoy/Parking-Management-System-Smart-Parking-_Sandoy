@@ -10,8 +10,8 @@ package utils;
     the code that performs a booking doesn't need to know or care which
     screens are currently open and need refreshing; it just announces the
     change, and every subscribed observer reacts on its own.                */
-public interface SlotStatusObserver {
 
+public interface SlotStatusObserver {
     //  Called by a SlotStatusPublisher whenever a slot's status changes.
     void onSlotStatusChanged();
 }
