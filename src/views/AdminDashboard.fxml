@@ -29,7 +29,7 @@
     <center>
         <TabPane tabClosingPolicy="UNAVAILABLE">
 
-            <!-- ===================== SLOTS TAB ===================== -->
+            <!--            SLOTS TAB            -->
             <Tab text="Manage Parking Slots">
                 <VBox spacing="12.0">
                     <padding>
@@ -68,7 +68,7 @@
                 </VBox>
             </Tab>
 
-            <!-- ===================== USERS TAB ===================== -->
+            <!--            USERS TAB            -->
             <Tab text="Manage Users">
                 <VBox spacing="12.0">
                     <padding>
@@ -108,7 +108,7 @@
                 </VBox>
             </Tab>
 
-            <!-- ===================== RESERVATIONS TAB ===================== -->
+            <!--            RESERVATIONS TAB            -->
             <Tab text="View Transactions">
                 <VBox spacing="12.0">
                     <padding>
