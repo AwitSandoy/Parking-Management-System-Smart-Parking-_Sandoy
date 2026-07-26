@@ -1,17 +1,12 @@
--- =====================================================================
---  Smart Parking Management System - Database Schema
---  Run this entire script in phpMyAdmin (SQL tab) on a fresh database
---  named "parking_system"
--- =====================================================================
+/*  Smart Parking Management System - Database Schema
+    -   Run this entire script in phpMyAdmin (SQL tab) on a fresh database named "parking_system".  */
 
 CREATE DATABASE IF NOT EXISTS parking_system;
 USE parking_system;
 
--- ---------------------------------------------------------------------
--- Table: users
--- Stores both Admin and Customer accounts.
--- Passwords are stored as SHA-256 hashes, never plain text.
--- ---------------------------------------------------------------------
+/*  Table: users
+    -   Stores both Admin and Customer accounts.
+    -   Passwords are stored as SHA-256 hashes, never plain text.    */
 CREATE TABLE users (
     id INT AUTO_INCREMENT PRIMARY KEY,
     username VARCHAR(50) NOT NULL UNIQUE,
@@ -20,9 +15,7 @@ CREATE TABLE users (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB;
 
--- ---------------------------------------------------------------------
 -- Table: parking_slots
--- ---------------------------------------------------------------------
 CREATE TABLE parking_slots (
     slot_id INT AUTO_INCREMENT PRIMARY KEY,
     slot_number VARCHAR(10) NOT NULL UNIQUE,
@@ -30,11 +23,9 @@ CREATE TABLE parking_slots (
     rate_per_hour DECIMAL(8,2) NOT NULL DEFAULT 20.00
 ) ENGINE=InnoDB;
 
--- ---------------------------------------------------------------------
--- Table: reservations
--- entry_time / exit_time are nullable: exit_time is filled in when the
--- customer releases the slot. total_amount is computed at release time.
--- ---------------------------------------------------------------------
+/*  Table: reservations
+    -   entry_time / exit_time are nullable: exit_time is filled in when the
+    customer releases the slot. total_amount is computed at release time.    */
 CREATE TABLE reservations (
     reservation_id INT AUTO_INCREMENT PRIMARY KEY,
     user_id INT NOT NULL,
@@ -48,18 +39,17 @@ CREATE TABLE reservations (
         ON DELETE CASCADE
 ) ENGINE=InnoDB;
 
--- =====================================================================
---  Seed Data
--- =====================================================================
 
--- Default Admin account -> username: admin   | password: admin123
--- Default Customer account -> username: john  | password: john123
--- (Password hashes below are SHA-256 of the plain text passwords above)
+--  Seed Data:
+
+/*  Default Admin account -> username: admin   | password: admin123
+    Default Customer account -> username: john  | password: john123
+    (Password hashes below are SHA-256 of the plain text passwords above)    */
 INSERT INTO users (username, password, role) VALUES
 ('admin', '240be518fabd2724ddb6f04eeb1da5967448d7e831c08c8fa822809f74c720a9', 'Admin'),
 ('john',  'b4b597c714a8f49103da4dab0266af0ee0ae4f8575250a84855c3d76941cd422', 'Customer');
 
--- Default parking slots
+-- Default parking slots:
 INSERT INTO parking_slots (slot_number, status, rate_per_hour) VALUES
 ('A1', 'Available', 20.00),
 ('A2', 'Available', 20.00),
