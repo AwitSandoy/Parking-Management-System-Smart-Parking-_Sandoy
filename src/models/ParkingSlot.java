@@ -4,11 +4,9 @@ import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
 
-/**
- * ParkingSlot exposes JavaFX properties so it can be plugged directly
- * into a TableView with PropertyValueFactory, without needing a
- * separate view-model wrapper class.
- */
+/*    ParkingSlot exposes JavaFX properties so it can be plugged directly 
+    into a TableView with PropertyValueFactory, without needing a separate 
+    view-model wrapper class.                                                */
 public class ParkingSlot {
 
     private final SimpleIntegerProperty slotId;
