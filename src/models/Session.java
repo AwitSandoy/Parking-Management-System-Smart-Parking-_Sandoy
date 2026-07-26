@@ -3,19 +3,18 @@ package models;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 
-/**
- * Represents an active login session. This is the exact object that gets
- * written to disk (session.dat) via Java Serialization when a user logs in,
- * and deleted when they log out.
- *
- * We deliberately do NOT store the user's password (hashed or otherwise)
- * in this object - a session file only needs enough information to know
- * *who* is logged in and *what role* they have, not their credentials.
- */
+/*    Represents an active login session. This is the exact object that gets
+    written to disk (session.dat) via Java Serialization when a user logs in,
+    and deleted when they log out.
+ 
+    We deliberately do NOT store the user's password (hashed or otherwise)
+    in this object - a session file only needs enough information to know
+    WHO is logged in and *what role* they have, not their credentials.        */
+
 public class Session implements Serializable {
 
-    // Used by Java Serialization to check class compatibility between the
-    // version that wrote the file and the version reading it back.
+    /*    Used by Java Serialization to check class compatibility between the
+        version that wrote the file and the version reading it back.            */
     private static final long serialVersionUID = 1L;
 
     private final int userId;
