@@ -11,15 +11,13 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * All database access for the "users" table.
- * Every query uses PreparedStatement (never string concatenation) to
- * prevent SQL injection, and every Connection is opened/closed with
- * try-with-resources so nothing is ever leaked.
- */
+/*    All database access for the "users" table. Every query uses PreparedStatement
+    (never string concatenation) to prevent SQL injection, and every Connection is 
+    opened/closed with try-with-resources so nothing is ever leaked.                */
+
 public class UserDAO implements IUserDAO {
 
-    /** Returns true if the username is not already taken. */
+    //    Returns true if the username is not already taken.
     public boolean isUsernameAvailable(String username) throws SQLException {
         String sql = "SELECT id FROM users WHERE username = ?";
         try (Connection conn = DatabaseConnection.getConnection();
@@ -31,7 +29,7 @@ public class UserDAO implements IUserDAO {
         }
     }
 
-    /** Registers a new Customer account. Returns true on success. */
+    //    Registers a new Customer account. Returns true on success.
     public boolean register(String username, String plainPassword) throws SQLException {
         String sql = "INSERT INTO users (username, password, role) VALUES (?, ?, 'Customer')";
         try (Connection conn = DatabaseConnection.getConnection();
@@ -42,13 +40,11 @@ public class UserDAO implements IUserDAO {
         }
     }
 
-    /**
-     * Validates login credentials.
-     * Returns the matching User object, or null if the username/password
-     * combination is invalid. The plain password supplied by the user is
-     * hashed and compared against the stored hash - the raw password is
-     * never sent to, or compared inside, the database.
-     */
+    /*    Validates login credentials.
+        Returns the matching User object, or null if the username/password combination is invalid. 
+        The plain password supplied by the user is hashed and compared against the stored hash, and 
+        the raw password is never sent to, or compared inside, the database.                        */
+    
     public User login(String username, String plainPassword) throws SQLException {
         String sql = "SELECT id, username, password, role FROM users WHERE username = ?";
         try (Connection conn = DatabaseConnection.getConnection();
@@ -68,7 +64,7 @@ public class UserDAO implements IUserDAO {
         return null;
     }
 
-    /** ADMIN: list every user account. */
+    //    ADMIN: list every user account.
     public List<User> getAllUsers() throws SQLException {
         List<User> list = new ArrayList<>();
         String sql = "SELECT id, username, password, role FROM users ORDER BY id";
@@ -83,7 +79,7 @@ public class UserDAO implements IUserDAO {
         return list;
     }
 
-    /** ADMIN: create a user with an explicit role (Admin or Customer). */
+    //    ADMIN: create a user with an explicit role (Admin or Customer).
     public boolean addUser(String username, String plainPassword, String role) throws SQLException {
         String sql = "INSERT INTO users (username, password, role) VALUES (?, ?, ?)";
         try (Connection conn = DatabaseConnection.getConnection();
@@ -95,7 +91,7 @@ public class UserDAO implements IUserDAO {
         }
     }
 
-    /** ADMIN: update a user's role (password left untouched). */
+    //    ADMIN: update a user's role (password left untouched).
     public boolean updateUserRole(int userId, String newRole) throws SQLException {
         String sql = "UPDATE users SET role = ? WHERE id = ?";
         try (Connection conn = DatabaseConnection.getConnection();
@@ -106,7 +102,7 @@ public class UserDAO implements IUserDAO {
         }
     }
 
-    /** ADMIN: delete a user account. */
+    //    ADMIN: delete a user account.
     public boolean deleteUser(int userId) throws SQLException {
         String sql = "DELETE FROM users WHERE id = ?";
         try (Connection conn = DatabaseConnection.getConnection();
