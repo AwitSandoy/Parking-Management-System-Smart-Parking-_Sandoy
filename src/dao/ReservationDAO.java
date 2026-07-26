@@ -16,13 +16,11 @@ import java.util.List;
 
 public class ReservationDAO implements IReservationDAO {
 
-    /**
-     * Books a slot for a customer: inserts a reservation row and marks
-     * the slot Occupied. Both statements run inside a single JDBC
-     * transaction so the database can never end up in a state where a
-     * slot is marked Occupied without a matching reservation, or vice
-     * versa, even if something fails halfway through.
-     */
+    /*    Books a slot for a customer: inserts a reservation row and marks the slot Occupied. 
+        Both statements run inside a single JDBC transaction so the database can never end up 
+        in a state where a slot is marked Occupied without a matching reservation, or vice versa, 
+        even if something fails halfway through.                                                    */
+    
     public boolean bookSlot(int userId, int slotId) throws SQLException {
         String insertSql = "INSERT INTO reservations (user_id, slot_id, entry_time) VALUES (?, ?, ?)";
         String updateSlotSql = "UPDATE parking_slots SET status = 'Occupied' " +
@@ -50,11 +48,9 @@ public class ReservationDAO implements IReservationDAO {
         }
     }
 
-    /**
-     * Releases a slot: sets exit_time, computes total_amount from the
-     * elapsed time and the slot's hourly rate, and marks the slot
-     * Available again - all inside one transaction.
-     */
+    /*    Releases a slot: sets exit_time, computes total_amount from the elapsed time and the
+        slot's hourly rate, and marks the slot Available again - all inside one transaction.    */
+    
     public boolean releaseSlot(int reservationId) throws SQLException {
         String selectSql = "SELECT r.slot_id, r.entry_time, s.rate_per_hour " +
                             "FROM reservations r JOIN parking_slots s ON r.slot_id = s.slot_id " +
@@ -105,7 +101,7 @@ public class ReservationDAO implements IReservationDAO {
         }
     }
 
-    /** CUSTOMER: active (not yet released) reservations for one user. */
+    //    CUSTOMER: active (not yet released) reservations for one user.
     public List<Reservation> getActiveReservationsForUser(int userId) throws SQLException {
         String sql = "SELECT r.reservation_id, r.user_id, u.username, r.slot_id, s.slot_number, " +
                      "r.entry_time, r.exit_time, r.total_amount " +
@@ -117,7 +113,7 @@ public class ReservationDAO implements IReservationDAO {
         return queryReservations(sql, userId);
     }
 
-    /** ADMIN: every reservation ever made (history + active). */
+    //    ADMIN: every reservation ever made (history + active).
     public List<Reservation> getAllReservations() throws SQLException {
         String sql = "SELECT r.reservation_id, r.user_id, u.username, r.slot_id, s.slot_number, " +
                      "r.entry_time, r.exit_time, r.total_amount " +
