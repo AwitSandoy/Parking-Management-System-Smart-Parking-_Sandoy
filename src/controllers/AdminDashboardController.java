@@ -64,7 +64,7 @@ public class AdminDashboardController {
     @FXML private TableColumn<Reservation, Double> colResAmount;
 
     /*      Depends on the I_DAO (Data Access Object pattern) abstractions,
-    not the concrete classes (Dependency Inversion Principle).          */
+    not the concrete classes (Dependency Inversion Principle).              */
     private final IParkingSlotDAO slotDAO = new ParkingSlotDAO();
     private final IUserDAO userDAO = new UserDAO();
     private final IReservationDAO reservationDAO = new ReservationDAO();
@@ -104,7 +104,7 @@ public class AdminDashboardController {
         this.currentUser = user;
 
         /*      Validate against the serialized session file rather than trusting the
-        in-memory User object alone.                                                */
+        in-memory User object alone.                                                    */
         Session session = SessionManager.getActiveSession();
         if (session == null || session.getUserId() != user.getId()) {
             showError("No valid session found. Please log in again.");

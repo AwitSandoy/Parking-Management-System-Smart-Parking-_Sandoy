@@ -6,15 +6,14 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 import utils.SessionManager;
-//
+
 public class Main extends Application {
 
     @Override
     public void start(Stage primaryStage) throws Exception {
 /*      Safety net: always start at the login screen with no leftover session file,
         in case the app was previously closed abnormally (e.g. crash) without going
-        through the normal logout flow.
-*/
+        through the normal logout flow.                                             */
         SessionManager.destroySession();
 
         Parent root = FXMLLoader.load(getClass().getResource("/views/LoginRegister.fxml"));
