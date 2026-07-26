@@ -9,7 +9,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
-// testing
+
 public class ParkingSlotDAO implements IParkingSlotDAO {
 
     public List<ParkingSlot> getAllSlots() throws SQLException {
