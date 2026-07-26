@@ -5,11 +5,9 @@ import models.ParkingSlot;
 import java.sql.SQLException;
 import java.util.List;
 
-/**
- * Abstraction for all "parking_slots" table data access.
- * See IUserDAO for the full explanation of why this interface exists
- * (Dependency Inversion Principle).
- */
+/*    Abstraction for all "parking_slots" table data access.
+    See IUserDAO for the full explanation of why this interface exists (Dependency Inversion Principle).    */
+
 public interface IParkingSlotDAO {
 
     List<ParkingSlot> getAllSlots() throws SQLException;
