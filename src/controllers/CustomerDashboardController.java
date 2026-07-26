@@ -1,7 +1,6 @@
 package controllers;
 
-import dao.IParkingSlotDAO;
-import dao.IReservationDAO;
+import dao.ParkingFacade;
 import dao.ParkingSlotDAO;
 import dao.ReservationDAO;
 import javafx.collections.FXCollections;
@@ -22,11 +21,16 @@ import models.Reservation;
 import models.Session;
 import models.User;
 import utils.SessionManager;
+import utils.SlotStatusObserver;
+import utils.SlotStatusPublisher;
 
 import java.io.IOException;
 import java.sql.SQLException;
 
-public class CustomerDashboardController {
+/*  Implements SlotStatusObserver - this controller reacts automatically whenever
+    ParkingFacade announces that a booking/release happened, instead of every button
+    handler needing to manually refresh tables itself (Observer pattern - Behavioral).  */
+public class CustomerDashboardController implements SlotStatusObserver {
 
     @FXML private Label welcomeLabel;
     @FXML private Label statusLabel;
@@ -41,10 +45,14 @@ public class CustomerDashboardController {
     @FXML private TableColumn<Reservation, String> colResEntry;
     @FXML private TableColumn<Reservation, Double> colResAmount;
 
-/*  Depends on the IParkingSlotDAO / IReservationDAO abstractions,
-    not the concrete classes (Dependency Inversion Principle).   */
-    private final IParkingSlotDAO slotDAO = new ParkingSlotDAO();
-    private final IReservationDAO reservationDAO = new ReservationDAO();
+    /*  ParkingFacade (Facade pattern - Structural) wraps IParkingSlotDAO and
+        IReservationDAO behind simplified booking/release methods, and owns the
+        SlotStatusPublisher this controller subscribes to.                      */
+    private final ParkingFacade parkingFacade = new ParkingFacade(
+            new ParkingSlotDAO(),
+            new ReservationDAO(),
+            new SlotStatusPublisher()
+    );
     private User currentUser;
 
     @FXML
@@ -56,13 +64,18 @@ public class CustomerDashboardController {
         colResSlot.setCellValueFactory(new PropertyValueFactory<>("slotNumber"));
         colResEntry.setCellValueFactory(new PropertyValueFactory<>("entryTime"));
         colResAmount.setCellValueFactory(new PropertyValueFactory<>("totalAmount"));
+
+        /*  Subscribe this controller to the Facade's publisher, so that onSlotStatusChanged()
+            below fires automatically after any successful booking or release.   */
+        parkingFacade.getPublisher().subscribe(this);
     }
 
     public void setCurrentUser(User user) {
         this.currentUser = user;
 
-/*  Validate against the serialized session file rather than trusting the in-memory User object alone
-    - this is the "use the file to maintain the session while navigating" requirement in practice.  */
+        /*  Validate against the serialized session file rather than trusting the in-memory
+            User object alone - this is the "use the file to maintain the session while
+            navigating" requirement in practice.                                            */
         Session session = SessionManager.getActiveSession();
         if (session == null || session.getUserId() != user.getId()) {
             showError("No valid session found. Please log in again.");
@@ -74,6 +87,13 @@ public class CustomerDashboardController {
         refreshAll();
     }
 
+    /*  Observer callback - called automatically by SlotStatusPublisher whenever ParkingFacade
+        successfully books or releases a slot.                                                  */
+    @Override
+    public void onSlotStatusChanged() {
+        refreshAll();
+    }
+
     private void refreshAll() {
         loadAvailableSlots();
         loadMyReservations();
@@ -81,7 +101,7 @@ public class CustomerDashboardController {
 
     private void loadAvailableSlots() {
         try {
-            ObservableList<ParkingSlot> slots = FXCollections.observableArrayList(slotDAO.getAvailableSlots());
+            ObservableList<ParkingSlot> slots = FXCollections.observableArrayList(parkingFacade.getAvailableSlots());
             availableSlotsTable.setItems(slots);
         } catch (SQLException e) {
             showError("Unable to load parking slots: " + e.getMessage());
@@ -91,7 +111,7 @@ public class CustomerDashboardController {
     private void loadMyReservations() {
         try {
             ObservableList<Reservation> reservations =
-                    FXCollections.observableArrayList(reservationDAO.getActiveReservationsForUser(currentUser.getId()));
+                    FXCollections.observableArrayList(parkingFacade.getActiveReservationsForUser(currentUser.getId()));
             myReservationsTable.setItems(reservations);
         } catch (SQLException e) {
             showError("Unable to load your reservations: " + e.getMessage());
@@ -113,15 +133,17 @@ public class CustomerDashboardController {
             return;
         }
         try {
-            boolean success = reservationDAO.bookSlot(currentUser.getId(), selected.getSlotId());
+            /*  Booking now goes through the Facade. If it succeeds, the Facade notifies
+                observers itself (see onSlotStatusChanged above) - no manual
+                refreshAll() call needed here.                                              */
+            boolean success = parkingFacade.bookSlot(currentUser.getId(), selected.getSlotId());
             if (success) {
                 statusLabel.setStyle("-fx-text-fill: #16a34a;");
                 statusLabel.setText("Slot " + selected.getSlotNumber() + " booked successfully!");
-                refreshAll();
             } else {
                 statusLabel.setStyle("-fx-text-fill: #dc2626;");
                 statusLabel.setText("Sorry, that slot was just taken. Please pick another.");
-                refreshAll();
+                refreshAll(); // no successful change happened, so refresh manually here.
             }
         } catch (SQLException e) {
             showError("Booking failed: " + e.getMessage());
@@ -137,11 +159,10 @@ public class CustomerDashboardController {
             return;
         }
         try {
-            boolean success = reservationDAO.releaseSlot(selected.getReservationId());
+            boolean success = parkingFacade.releaseSlot(selected.getReservationId());
             if (success) {
                 statusLabel.setStyle("-fx-text-fill: #16a34a;");
                 statusLabel.setText("Slot " + selected.getSlotNumber() + " released. Thank you!");
-                refreshAll();
             } else {
                 showError("Unable to release that reservation.");
             }
@@ -152,8 +173,11 @@ public class CustomerDashboardController {
 
     @FXML
     private void handleLogout(ActionEvent event) {
-        /*      Delete the serialized session file - this is the required
-            "session file must be automatically deleted" behavior on logout.    */
+        // Unsubscribe from the publisher before leaving this screen.
+        parkingFacade.getPublisher().unsubscribe(this);
+
+        /*  Delete the serialized session file - this is the required "session file must be
+            automatically deleted" behavior on logout.                                      */
         SessionManager.destroySession();
         returnToLogin();
     }
