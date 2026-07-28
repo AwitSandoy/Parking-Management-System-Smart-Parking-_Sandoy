@@ -1,4 +1,5 @@
 # Smart Parking Management System — Full Setup Guide
+
 ---
 
 ## Software System Overview
@@ -54,7 +55,7 @@ screens.
      abnormally without a clean logout.
 3. **End-to-end lifecycle:** log in → `session.dat` appears in the project's
    working directory → the file is read and validated as you navigate the
-   dashboards → click Logout → `session.dat` is deleted, and you're returned
+   dashboards → click Logout → `session.dat` is deleted and you're returned
    to the login screen.
 
 ---
@@ -106,6 +107,85 @@ the controller was never coupled to the concrete class in the first place.
 
 ---
 
+## Design Patterns Applied
+
+Three design patterns are deliberately implemented in this project, one from
+each required category (Creational, Structural, Behavioral).
+
+### 1. Singleton (Creational)
+
+**Class involved:** `utils/DatabaseConnection.java`
+
+**How it's applied:** the class has a private constructor, so it can never
+be instantiated with `new DatabaseConnection()` from outside the class.
+The only way to obtain it is through the static `getInstance()` method,
+which lazily creates the single instance on first call and returns that
+same instance on every call after that:
+```java
+public static synchronized DatabaseConnection getInstance() {
+    if (instance == null) {
+        instance = new DatabaseConnection();
+    }
+    return instance;
+}
+```
+A convenience static method, `getConnection()`, is kept so existing DAO
+code continues to work unchanged — internally it simply routes through
+`getInstance()`.
+
+**Benefit gained:** there is exactly one object in the application
+responsible for knowing the database's URL and credentials and producing
+connections from them, instead of that configuration being duplicated or
+re-created in multiple places.
+
+### 2. Facade (Structural)
+
+**Class involved:** `dao/ParkingFacade.java`
+
+**How it's applied:** `ParkingFacade` sits in front of two separate DAOs,
+`IParkingSlotDAO` and `IReservationDAO`, and exposes a small, simplified
+set of methods that match what a Customer actually wants to do:
+`getAvailableSlots()`, `bookSlot()`, `releaseSlot()`, and
+`getActiveReservationsForUser()`. `CustomerDashboardController` talks only
+to this one Facade object instead of holding and coordinating two separate
+DAOs itself.
+
+**Benefit gained:** the coordination logic (e.g. notifying observers only
+after a booking/release genuinely succeeds) lives in one place, and the
+controller is simpler and has one fewer thing to know about.
+
+### 3. Observer (Behavioral)
+
+**Classes involved:** `utils/SlotStatusObserver.java` (the Observer
+interface), `utils/SlotStatusPublisher.java` (the Subject/Publisher), and
+`controllers/CustomerDashboardController.java` (a concrete Observer).
+
+**How it's applied:** `ParkingFacade` owns a `SlotStatusPublisher` and
+calls `notifyObservers()` on it immediately after a booking or release
+succeeds. `CustomerDashboardController implements SlotStatusObserver` and
+subscribes itself to that publisher in `initialize()`, so its
+`onSlotStatusChanged()` method fires automatically and refreshes both
+tables, without the booking/release button handlers needing to call
+`refreshAll()` themselves.
+
+**Benefit gained:** the code that performs a booking doesn't need to know
+or care which screens are currently open and need refreshing — it just
+announces that a change happened, and every subscribed observer reacts on
+its own. Additional observers could be added later with no change to
+`ParkingFacade` at all.
+
+### UML Class Diagram
+
+![Smart Parking Management System UML Class Diagram](Smart%20Parking%20Management%20System_UML%20Class%20Diagram.drawio.png)
+
+The diagram above shows the full class structure, including the three
+patterns above (highlighted through their relationships to
+`DatabaseConnection`, `ParkingFacade`, and
+`SlotStatusObserver`/`SlotStatusPublisher`), built and exported using
+[app.diagrams.net](https://app.diagrams.net).
+
+---
+
 
 ## Project Structure Overview
 
@@ -131,11 +211,14 @@ SmartParkingSystem/
 │   │   ├── IReservationDAO.java         <- interface (DIP)
 │   │   ├── UserDAO.java
 │   │   ├── ParkingSlotDAO.java
-│   │   └── ReservationDAO.java
+│   │   ├── ReservationDAO.java
+│   │   └── ParkingFacade.java           <- Facade pattern (Structural)
 │   ├── utils/
-│   │   ├── DatabaseConnection.java      <- JDBC connection factory
+│   │   ├── DatabaseConnection.java      <- Singleton pattern (Creational)
 │   │   ├── PasswordUtil.java            <- SHA-256 password hashing
-│   │   └── SessionManager.java          <- creates/reads/deletes session.dat
+│   │   ├── SessionManager.java          <- creates/reads/deletes session.dat
+│   │   ├── SlotStatusObserver.java      <- Observer pattern (Behavioral)
+│   │   └── SlotStatusPublisher.java     <- Observer pattern (Behavioral)
 │   └── views/
 │       ├── LoginRegister.fxml
 │       ├── AdminDashboard.fxml
